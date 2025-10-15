@@ -4,7 +4,7 @@ from pydantic import Field
 
 class Settings(BaseSettings):
 	app_name: str = Field(default="AI Customer Support Bot")
-	database_url: str = Field(default="sqlite:///./app.db")
+	database_url: str = Field(default="sqlite:////tmp/app.db")
 	retriever_top_k: int = Field(default=5)
 	escalation_threshold: float = Field(default=0.45)
 	summary_after_messages: int = Field(default=12)
