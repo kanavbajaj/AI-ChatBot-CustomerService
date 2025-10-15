@@ -1,3 +1,7 @@
+# Demo Video
+
+[▶️ Watch the demo](https://github.com/user-attachments/assets/ea6bff1c-cbed-488e-9a75-0d29497d58f3)
+
 # AI Customer Support Bot
 
 A FastAPI-based backend with BM25 FAQ retrieval and LLM integration (OpenRouter primary; HF fallback) to simulate customer support interactions, including session tracking, contextual memory, and escalation simulation. Includes a minimal static chat UI.
@@ -76,8 +80,6 @@ OR_BASE_URL = "https://openrouter.ai/api/v1"
 Notes:
 - Messages are stored in `st.session_state` only; persistence across sessions is not included in the Streamlit UI (the FastAPI API still provides DB-backed persistence if you run the backend).
 
-# Demo Video
 
-[▶️ Watch the demo](https://github.com/user-attachments/assets/ea6bff1c-cbed-488e-9a75-0d29497d58f3)
 
 ---
