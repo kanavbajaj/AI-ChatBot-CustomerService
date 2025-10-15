@@ -6,7 +6,7 @@ from typing import List
 from .database import get_db
 from . import crud, schemas
 from .faq_loader import FAQRepository
-from .retriever import TfidfFAQRetriever
+from .retriever import BM25FAQRetriever
 from .llm import LLMClient
 from .config import settings
 from .escalation import should_escalate, build_escalation_message, summarize_conversation
@@ -54,7 +54,7 @@ async def send_message(session_id: int, payload: schemas.MessageCreate, db: Sess
 
 	# Retrieve FAQs
 	repo = FAQRepository(path="data/faqs.jsonl")
-	retriever = TfidfFAQRetriever(repo)
+	retriever = BM25FAQRetriever(repo)
 	retrieved = retriever.retrieve(payload.content, top_k=settings.retriever_top_k)
 
 	# Compose system prompt with top FAQs
