@@ -14,8 +14,21 @@ engine = create_engine(
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+_initialized = False
+
+
+def _ensure_tables_once():
+	global _initialized
+	if _initialized:
+		return
+	# Import models here to avoid circular import at module load
+	from . import models  # noqa: F401
+	Base.metadata.create_all(bind=engine)
+	_initialized = True
+
 
 def get_db():
+	_ensure_tables_once()
 	db = SessionLocal()
 	try:
 		yield db
