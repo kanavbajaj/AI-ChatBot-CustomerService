@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>AI Customer Support Bot</title>
+	<style>
+		body { font-family: system-ui, sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
+		.container { max-width: 800px; margin: 0 auto; padding: 24px; }
+		.card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; padding: 16px; }
+		.row { display: flex; gap: 8px; }
+		input, button { padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0b1220; color: #e2e8f0; }
+		button { cursor: pointer; }
+		.chat { margin-top: 16px; max-height: 480px; overflow: auto; display: flex; flex-direction: column; gap: 8px; }
+		.msg { padding: 12px; border-radius: 8px; max-width: 80%; }
+		.user { align-self: flex-end; background: #1d4ed8; }
+		.assistant { align-self: flex-start; background: #334155; }
+		.meta { font-size: 12px; opacity: 0.7; }
+		.error { align-self: center; background: #7f1d1d; }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h2>AI Customer Support Bot</h2>
+		<div class="card">
+			<div class="row">
+				<input id="sessionId" placeholder="Session ID (blank = create)" style="flex:1" />
+				<button onclick="createSession()">Create</button>
+			</div>
+			<div class="chat" id="chat"></div>
+			<div class="row" style="margin-top: 12px;">
+				<input id="message" placeholder="Type your message..." style="flex:1" />
+				<button onclick="sendMsg()">Send</button>
+			</div>
+		</div>
+	</div>
+	<script>
+	const api = (path) => `${location.origin}/api${path}`;
+
+	async function createSession(){
+		const res = await fetch(api('/sessions'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+		if(!res.ok){
+			append([{ role: 'assistant', content: `Failed to create session (${res.status})` }]);
+			return;
+		}
+		const data = await res.json();
+		document.getElementById('sessionId').value = data.id;
+		loadMessages();
+	}
+
+	async function loadMessages(){
+		const id = document.getElementById('sessionId').value.trim();
+		if(!id) return;
+		const res = await fetch(api(`/sessions/${id}/messages`));
+		if(!res.ok){
+			append([{ role: 'assistant', content: `Failed to load messages (${res.status}) – ensure session exists or click Create.` }]);
+			return;
+		}
+		const msgs = await res.json();
+		render(msgs);
+	}
+
+	async function sendMsg(){
+		let id = document.getElementById('sessionId').value.trim();
+		const text = document.getElementById('message').value.trim();
+		if(!text) return;
+		if(!id){
+			await createSession();
+			id = document.getElementById('sessionId').value.trim();
+		}
+		append([{ role: 'user', content: text, created_at: new Date().toISOString() }]);
+		document.getElementById('message').value = '';
+		const res = await fetch(api(`/sessions/${id}/messages`), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: 'user', content: text }) });
+		if(!res.ok){
+			let details = '';
+			try { const j = await res.json(); details = j.detail ? `: ${j.detail}` : ''; } catch {}
+			append([{ role: 'assistant', content: `Request failed (${res.status})${details}` }]);
+			return;
+		}
+		const msg = await res.json();
+		append([msg]);
+	}
+
+	function render(msgs){
+		const chat = document.getElementById('chat');
+		chat.innerHTML = '';
+		append(msgs);
+	}
+
+	function append(msgs){
+		const chat = document.getElementById('chat');
+		for(const m of msgs){
+			const role = (m && m.role) || 'assistant';
+			const text = safeText(m && m.content);
+			const div = document.createElement('div');
+			div.className = `msg ${role}`;
+			div.innerHTML = `<div>${escapeHtml(text)}</div>` + ((m && m.confidence !== undefined) ? `<div class='meta'>confidence: ${Number(m.confidence).toFixed(2)} ${m.needs_escalation ? ' | escalation suggested' : ''}</div>` : '');
+			chat.appendChild(div);
+			chat.scrollTop = chat.scrollHeight;
+		}
+	}
+
+	function safeText(v){
+		if(v === null || v === undefined) return '';
+		return String(v);
+	}
+
+	function escapeHtml(str){
+		const s = String(str);
+		return s.replace(/[&<>\"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+	}
+	</script>
+</body>
+</html>
