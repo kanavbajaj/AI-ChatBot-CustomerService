@@ -75,3 +75,9 @@ OR_BASE_URL = "https://openrouter.ai/api/v1"
 
 Notes:
 - Messages are stored in `st.session_state` only; persistence across sessions is not included in the Streamlit UI (the FastAPI API still provides DB-backed persistence if you run the backend).
+
+# Demo Video
+
+[▶️ Watch the demo](docs/demo.mp4)
+
+---
