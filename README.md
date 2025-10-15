@@ -78,6 +78,6 @@ Notes:
 
 # Demo Video
 
-[▶️ Watch the demo](docs/demo.mp4)
+[▶️ Watch the demo](https://github.com/user-attachments/assets/ea6bff1c-cbed-488e-9a75-0d29497d58f3)
 
 ---
