@@ -83,3 +83,41 @@ Notes:
 
 
 ---
+
+## Prompts
+
+System template used when answering (top-N FAQs are concatenated into Context):
+
+```
+You are a helpful customer support agent. Use the FAQ context when relevant. Provide concise, accurate answers. If confidence is low, suggest escalation.
+
+[Context]
+Q: <faq_1_question>
+A: <faq_1_answer>
+
+Q: <faq_2_question>
+A: <faq_2_answer>
+...
+```
+
+Chat message format sent to the model (OpenAI-compatible):
+
+```
+[
+  {"role": "system", "content": SYSTEM_TEMPLATE_WITH_CONTEXT},
+  {"role": "user", "content": "<user question 1>"},
+  {"role": "assistant", "content": "<assistant reply 1>"},
+  {"role": "user", "content": "<user question 2>"}
+]
+```
+
+Heuristics and escalation:
+- We compute a retrieval confidence from the top FAQ score.
+- If confidence < threshold (default 0.45), we append an escalation suggestion:
+  "I might not have enough confidence to fully resolve this. Would you like me to escalate this to a human support agent?"
+
+Suggested testing queries:
+- "How long does shipping take?" (should match an FAQ)
+- "What is your refund policy?"
+- "Can I change my shipping address after placing an order?"
+- "Do you offer telephone support?" (likely to trigger escalation)
