@@ -58,3 +58,20 @@ If set, used as a fallback via the models endpoint.
 
 ## Demo Video Tips
 - Show session creation, a known FAQ question, and a non-FAQ to trigger escalation.
+
+# Streamlit Deployment
+
+Deploy on Streamlit Cloud:
+
+1) Push repo to GitHub.
+2) Go to `https://share.streamlit.io` → New app → pick this repo and set `main file` to `streamlit_app.py`.
+3) In App settings → Secrets, paste:
+```
+OPENROUTER_API_KEY = "sk-or-..."
+OR_MODEL_NAME = "meta-llama/llama-3.1-8b-instruct"
+OR_BASE_URL = "https://openrouter.ai/api/v1"
+```
+4) Deploy. The chat UI will be available at your Streamlit app URL.
+
+Notes:
+- Messages are stored in `st.session_state` only; persistence across sessions is not included in the Streamlit UI (the FastAPI API still provides DB-backed persistence if you run the backend).
